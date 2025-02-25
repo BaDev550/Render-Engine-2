@@ -1,0 +1,14 @@
+{
+    "game_settings": {
+        "game_author": "BaDev",
+        "game_icon": "Icon.png",
+        "game_name": "DOOM23",
+        "game_version": "0.0.1",
+        "render_antialiasing": true,
+        "render_antialiasing_count": 8,
+        "render_bloom": false,
+        "render_mode": 0,
+        "render_shadows": true,
+        "render_vsync": true
+    }
+}

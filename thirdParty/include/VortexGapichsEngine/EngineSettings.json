@@ -1,0 +1,12 @@
+{
+  "engine_settings": {
+    "engine_name": "Vortex Render Engine",
+    "engine_version": "0.0.1",
+    "engine_author": "Vortex Games",
+    "engine_icon": "engine/icon.png",
+
+    "setting_debug_mode": true,
+    "setting_show_fps": false,
+    "setting_show_stats": false
+  }
+}
