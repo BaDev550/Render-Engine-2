@@ -8,7 +8,7 @@ void VEngine::start() {
 	mario = entityManager.createEntity("Mario");
 
 	addComponent<StaticMeshComponent>(mario);
-	addComponent<TransformComponent>(mario, glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
+	addComponent<TransformComponent>(mario, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
 	getComponent<StaticMeshComponent>(mario)->staticModel.texture.loadTexture("resources/Textures/wood.png");
 	getComponent<StaticMeshComponent>(mario)->staticModel.loadModel("resources/Models/mario_2/mario_2.obj");
 }

@@ -23,7 +23,11 @@ public:
 	}
 
 	void destroyEntity(Entity entity) {
-		//entities.push_back(entity);
+        entities.erase(entity); // Remove entity name
+        
+        //if (transformComponents.hasComponent(entity)) {
+        //    transformComponents.
+        //}
 	}
 
     template<typename T>
@@ -89,16 +93,22 @@ public:
                 rigidBody->renderImGui();
             }
         }
-
-        if (ImGui::Combo("Component", &selectedComp, "StaticMesh\0RigidBody\0\0")) {
-            switch (selectedComp)
-            {
-            case 0:
+        
+        if (!hasComponent<StaticMeshComponent>(entity)) {
+            if (ImGui::Button("Mesh")) {
                 addComponent<StaticMeshComponent>(entity, std::make_unique<StaticMeshComponent>("resources/Models/Cube/cube.obj", ""));
-            case 1:
+            }
+        }
+        if (!hasComponent<RigidBodyComponent>(entity)) {
+            ImGui::SameLine();
+            if (ImGui::Button("RigidBody")) {
                 addComponent<RigidBodyComponent>(entity, std::make_unique<RigidBodyComponent>(glm::vec3(0.0f), 1.0f, true));
-            default:
-                break;
+            }
+        }
+        if (!hasComponent<TransformComponent>(entity)) {
+            ImGui::SameLine();
+            if (ImGui::Button("Transform")) {
+                addComponent<TransformComponent>(entity, std::make_unique<TransformComponent>(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f)));
             }
         }
     }

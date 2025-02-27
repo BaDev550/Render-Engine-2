@@ -20,9 +20,6 @@ void Model::draw(Shader& shader)
     texture.bind();
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, position);
-    model = glm::scale(model, scale);
-    shader.setMat4("model", model);
 
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);

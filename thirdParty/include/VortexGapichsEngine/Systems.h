@@ -23,6 +23,9 @@ public:
             if (rb->isStatic) {
                 rb->velocity = glm::vec3(0.0f);
             }
+            else {
+                rb->velocity.y -= 1.0f;
+            }
 
             transform->position += rb->velocity * deltaTime;
         }
