@@ -46,8 +46,8 @@ vec3 Tonemapping(vec3 color)
 vec3 BlinnPhong(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightColor){
     bool bGamma = true;
 
-    vec3 lightDir = normalize(lightPos - fs_in.Position);
-    float diff = max(dot(lightDir, normal), 0.0);
+    vec3 lightDirNorm = normalize(lightDir - fragPos);
+    float diff = max(dot(lightDirNorm, normal), 0.0);
     vec3 diffuse = diff * lightColor;
 
     vec3 viewDir = normalize(cameraPos - fs_in.Position);
