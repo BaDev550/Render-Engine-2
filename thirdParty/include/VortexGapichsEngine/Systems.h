@@ -2,6 +2,7 @@
 #define SYSTEMS_CLASS
 
 #include "ComponentManager.h"
+#include "EntityManager.h"
 #include "Model.h"
 
 class PhysicsSystem {
@@ -24,38 +25,24 @@ public:
                 rb->velocity = glm::vec3(0.0f);
             }
             else {
-                rb->velocity.y -= 1.0f;
+                if (rb->applyGravity) {
+                    rb->velocity.y -= 1.0f;
+                }
             }
+
 
             transform->position += rb->velocity * deltaTime;
         }
     }
 };
 
-class LightManager {
-public:
-    std::vector<LightComponent> lights;
-
-    void addLight(const LightComponent& light) {
-        lights.push_back(light);
-    }
-
-    const std::vector<LightComponent>& getLights() const {
-        return lights;
-    }
-
-    void renderLightImGui(LightComponent light) {
-        light.renderImGui();
-    }
-};
-
 class RenderingSystem {
 private:
-    LightManager* lightManager;
+    EntityManager* entityManager;
 public:
     RenderingSystem() {}
     
-    void setLightManager(LightManager* manager) { lightManager = manager; }
+    void setLightManager(EntityManager* manager) { entityManager = manager; }
     void Render(const std::vector<Component*>& components, Shader& shader) {
         StaticMeshComponent* mesh = nullptr;
         TransformComponent* transform = nullptr;
@@ -81,21 +68,31 @@ public:
         }
     }
 
+    int lightCount = 0;
     void passLightsToShader(Shader& shader) {
-        const auto& lights = lightManager->getLights();
+        for (const auto& [entity, name] : entityManager->entities) {
+            if (entityManager->hasComponent<LightComponent>(entity)) {
+                LightComponent* light = entityManager->getComponent<LightComponent>(entity);
+                TransformComponent* light_transform = entityManager->getComponent<TransformComponent>(entity);
+                int lightType = light->type;
 
-        for (size_t i = 0; i < lights.size(); ++i) {
-            const auto& light = lights[i];
+                std::string uniformBase = "lights[" + std::to_string(lightCount) + "]";
+                shader.setVec3(uniformBase + ".position", light_transform->position);
+                shader.setVec3(uniformBase + ".color", light->color);
+                shader.setFloat(uniformBase + ".intensity", light->intensity);
+                shader.setInt(uniformBase + ".type", lightType);
 
-            std::string uniformBase = "lights[" + std::to_string(i) + "]";
+                if (light->type == LightType::Spot) {
+                    shader.setVec3(uniformBase + ".direction", light_transform->getForwardVector());
+                    shader.setFloat(uniformBase + ".cutoff", glm::cos(glm::radians(12.5f)));
+                    shader.setFloat(uniformBase + ".outerCutoff", glm::cos(glm::radians(17.5f)));
+                }
 
-            shader.setVec3(uniformBase + ".position", light.position);
-            shader.setVec3(uniformBase + ".color", light.color);
-            shader.setFloat(uniformBase + ".intensity", light.intensity);
-            shader.setInt(uniformBase + ".type", static_cast<int>(light.type));
+                lightCount++;
+            }
         }
 
-        shader.setInt("numLights", static_cast<int>(lights.size()));
+        shader.setInt("numLights", lightCount);
     }
 };
 

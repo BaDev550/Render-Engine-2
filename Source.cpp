@@ -1,16 +1,20 @@
 #include <VortexGapichsEngine/VortexGameEngine.h>
 
-Entity mario;
+Entity player;
+float playerSpeed = 5.0f;
+RigidBodyComponent* rb;
 
 void VEngine::start() {
-	addLight(LightComponent::LightType::Point);
+	addLight("Spot Light", Spot);
 
-	mario = entityManager.createEntity("Mario");
+	player = entityManager.createEntity("Player");
 
-	addComponent<StaticMeshComponent>(mario);
-	addComponent<TransformComponent>(mario, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
-	getComponent<StaticMeshComponent>(mario)->staticModel.texture.loadTexture("resources/Textures/wood.png");
-	getComponent<StaticMeshComponent>(mario)->staticModel.loadModel("resources/Models/mario_2/mario_2.obj");
+	addComponent<StaticMeshComponent>(player);
+	addComponent<RigidBodyComponent>(player, glm::vec3(0.0f), 1.0f, false);
+	addComponent<TransformComponent>(player, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
+	getComponent<StaticMeshComponent>(player)->staticModel.loadModel("resources/Models/mario_2/mario_2.obj");
+
+	rb = getComponent<RigidBodyComponent>(player);
 }
 
 void VEngine::update(float dt) {
@@ -25,4 +29,13 @@ void VEngine::processInput() {
 		ve_window.setVEWindowHint(VE_WINDOW_SHOW_CURSOR, true);
 	if (ve_input.isKeyPressed(GLFW_KEY_N, false, false, true))
 		ve_window.setVEWindowHint(VE_WINDOW_SHOW_CURSOR, false);
+
+	if (ve_input.isKeyPressed(GLFW_KEY_DOWN))
+		rb->velocity += glm::vec3(1.0f * playerSpeed, rb->velocity.y, rb->velocity.z) * deltaTime;
+	if (ve_input.isKeyPressed(GLFW_KEY_UP))
+		rb->velocity -= glm::vec3(1.0f * playerSpeed, rb->velocity.y, rb->velocity.z) * deltaTime;
+	if (ve_input.isKeyPressed(GLFW_KEY_LEFT))
+		rb->velocity += glm::vec3(rb->velocity.x, rb->velocity.y, 1.0f * playerSpeed) * deltaTime;
+	if (ve_input.isKeyPressed(GLFW_KEY_RIGHT))
+		rb->velocity -= glm::vec3(rb->velocity.x, rb->velocity.y, 1.0f * playerSpeed) * deltaTime;
 }

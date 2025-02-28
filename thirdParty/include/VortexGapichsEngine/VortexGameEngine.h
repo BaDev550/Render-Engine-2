@@ -17,8 +17,6 @@
 #include "VERenderer.h"
 #include "Vertex.h"
 
-#include "MeshLoader.h"
-
 #include "Entity.h"
 #include "Components.h"
 #include "Systems.h"

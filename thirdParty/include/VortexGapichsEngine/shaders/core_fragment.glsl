@@ -10,17 +10,24 @@ in VS_OUT{
 
 struct Light {
     vec3 position;
+    vec3 direction;
     vec3 color;
     float intensity;
-    int type; // 0 = point, 1 = directional, 2 = Spot
+    int type; // 0 = point, 1 = spotlight, 2 = directional
+    float cutoff;
+    float outerCutoff;
 };
 
 uniform int numLights;
 uniform Light lights[10];
 
-uniform sampler2D diffuse_texture;
-uniform sampler2D shadowMap;
+struct Texture {
+    sampler2D texture_diffuse;
+    sampler2D texture_normal;
+    sampler2D texture_specular;
+};
 
+uniform Texture m_texture;
 uniform vec3 cameraPos;
 uniform int renderMode = 3; // 0: Default, 1: Light, 2 Texture, 3: Depth
 
@@ -44,18 +51,16 @@ vec3 Tonemapping(vec3 color)
 }
 
 vec3 BlinnPhong(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightColor){
-    bool bGamma = true;
-
-    vec3 lightDirNorm = normalize(lightDir - fragPos);
-    float diff = max(dot(lightDirNorm, normal), 0.0);
+    vec3 lightDir = normalize(lightPos - fragPos);
+    float diff = max(dot(lightDir, normal), 0.0);
     vec3 diffuse = diff * lightColor;
 
-    vec3 viewDir = normalize(cameraPos - fs_in.Position);
+    vec3 viewDir = normalize(cameraPos - fragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);  
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-    vec3 specular = spec * lightColor; 
+    float shininess = 32.0;
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
+    vec3 specular = spec * lightColor;
 
-    float max_distance = 1.5;
     float distance = length(lightPos - fragPos);
     float attenuation = 1.0 / (distance * distance);
 
@@ -67,18 +72,30 @@ vec3 BlinnPhong(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightColor){
 }
 
 void main() {
-    vec3 color = texture(diffuse_texture, fs_in.TexCoord).rgb;
+    vec3 color = texture(m_texture.texture_diffuse, fs_in.TexCoord).rgb;
     vec3 lighting;
 
     for (int i = 0; i < numLights; i++){
         Light light = lights[i];
 
-        lighting = BlinnPhong(normalize(fs_in.Normal), fs_in.Position, light.position, light.color);
+        if (light.type == 0) {
+            lighting += BlinnPhong(normalize(fs_in.Normal), fs_in.Position, light.position, light.color);
+        } else if (light.type == 1) {
+            vec3 lightDir = normalize(light.position - fs_in.Position);
+            float theta = dot(lightDir, normalize(-light.direction));
+            float epsilon = light.cutoff - light.outerCutoff;
+            float intensity = clamp((theta - light.outerCutoff) / epsilon, 0.0, 1.0);
+            
+            vec3 spotlightEffect = light.color * intensity;
+            lighting += spotlightEffect;
+        } else if (light.type == 2) {
+            
+        }
     }
 
     if(renderMode == 0){
         color *= lighting;
-        Tonemapping(color);
+        color = Tonemapping(color);
 
         FragColor = vec4(color, 1.0);
     }else if(renderMode == 1){
@@ -86,7 +103,7 @@ void main() {
     }else if(renderMode == 2){
 		FragColor = vec4(color, 1.0);
     }else if(renderMode == 3){
-		float depth = length(fs_in.Position - cameraPos) / 10.0;
-		FragColor = vec4(vec3(depth), 1.0);
+        float depth = length(fs_in.Position - cameraPos);
+        FragColor = vec4(vec3(depth), 1.0);
 	}
 }

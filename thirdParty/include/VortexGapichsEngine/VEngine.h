@@ -39,7 +39,6 @@ private:
 	PhysicsSystem pyhsicsSystem;
 	RenderingSystem renderingSystem;
 	EntityManager entityManager;
-	LightManager lightManager;
 
 	void engineUpdate();
 
@@ -52,7 +51,7 @@ private:
 	std::string getCurrentTime();
 public:
 	VEngine() {
-		renderingSystem.setLightManager(&lightManager);
+		renderingSystem.setLightManager(&entityManager);
 	};
 
 	void engineInit();
@@ -69,7 +68,7 @@ public:
 	template<typename T>
 	T* getComponent(Entity entity);
 
-	void addLight(LightComponent::LightType type);
+	void addLight(std::string name, LightType type);
 };
 #endif // !VORTEX_ENGINE
 

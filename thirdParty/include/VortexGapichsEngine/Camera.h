@@ -74,7 +74,11 @@ public:
     bool firstMouse = true;
 
     void ProcessMouse(float mouseX, float mouseY) {
-        if (glfwGetInputMode(glfwGetCurrentContext(), GLFW_CURSOR) != GLFW_CURSOR_DISABLED) return;
+        if (glfwGetInputMode(glfwGetCurrentContext(), GLFW_CURSOR) != GLFW_CURSOR_DISABLED) {
+            firstMouse = true;
+            return;
+        }
+
         float xpos = static_cast<float>(mouseX);
         float ypos = static_cast<float>(mouseY);
 

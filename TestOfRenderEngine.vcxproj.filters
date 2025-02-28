@@ -51,9 +51,6 @@
     <ClCompile Include="thirdParty\include\VortexGapichsEngine\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="thirdParty\include\VortexGapichsEngine\MeshLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="thirdParty\include\VortexGapichsEngine\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -88,6 +85,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="thirdParty\include\VortexGapichsEngine\stb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thirdParty\include\VortexGapichsEngine\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -140,9 +140,6 @@
     <ClInclude Include="thirdParty\include\VortexGapichsEngine\EntityManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="thirdParty\include\VortexGapichsEngine\MeshLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="thirdParty\include\VortexGapichsEngine\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -182,8 +179,20 @@
     <ClInclude Include="thirdParty\include\VortexGapichsEngine\VortexGameEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="thirdParty\include\VortexGapichsEngine\Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+    <None Include="thirdParty\include\VortexGapichsEngine\shaders\core_fragment.glsl" />
+    <None Include="thirdParty\include\VortexGapichsEngine\shaders\core_vertex.glsl" />
+    <None Include="thirdParty\include\VortexGapichsEngine\shaders\depth_fragment.glsl" />
+    <None Include="thirdParty\include\VortexGapichsEngine\shaders\depth_vertex.glsl" />
+    <None Include="thirdParty\include\VortexGapichsEngine\shaders\screen_fragment.glsl" />
+    <None Include="thirdParty\include\VortexGapichsEngine\shaders\screen_vertex.glsl" />
+    <None Include="thirdParty\include\VortexGapichsEngine\shaders\single_color_fragment.glsl" />
+    <None Include="thirdParty\include\VortexGapichsEngine\shaders\skybox_fragment.glsl" />
+    <None Include="thirdParty\include\VortexGapichsEngine\shaders\skybox_vertex.glsl" />
   </ItemGroup>
 </Project>

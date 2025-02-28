@@ -47,10 +47,11 @@ void VEngine::engineUpdate()
 	}
 }
 
-void VEngine::addLight(LightComponent::LightType type)
+void VEngine::addLight(std::string name, LightType type)
 {
-	LightComponent tmp_light(glm::vec3(0.0f), glm::vec3(1.0f), 1.0f, type);
-	lightManager.addLight(tmp_light);
+	Entity temp_light_entity = entityManager.createEntity(name);
+	addComponent<LightComponent>(temp_light_entity, glm::vec3(1.0f), 1.0f, type);
+	addComponent<TransformComponent>(temp_light_entity, glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f));
 }
 
 void VEngine::restart()
@@ -73,16 +74,33 @@ void VEngine::showEntityList() {
 	ImGui::Begin("Entity Manager");
 
 	static char entityName[128] = "";
+	static int entityType = 0;
+	static int lightType = 0;
 
-	ImGui::InputText("Entity Name", entityName, IM_ARRAYSIZE(entityName));
-	if (ImGui::Button("Add Entity")) {
-		if (strlen(entityName) > 0) {
-			entityManager.createEntity(entityName);
-			entityName[0] = '\0';
-		}
+	ImGui::Combo("Type", &entityType, "Entity\0Light");
+	if (entityType == 1) {
+		ImGui::Combo("Light Type", &lightType, "Point\0Spot\0Direct");
 	}
-	if (ImGui::Button("Add Light")) {
-		addLight(LightComponent::LightType::Point);
+	ImGui::InputText("Entity Name", entityName, IM_ARRAYSIZE(entityName));
+	ImGui::SameLine();
+	if (ImGui::Button("Add")) {
+		switch (entityType)
+		{
+		case 0:
+			if (strlen(entityName) > 0) {
+				entityManager.createEntity(entityName);
+				entityName[0] = '\0';
+			}
+			break;
+		case 1:
+			addLight(entityName, static_cast<LightType>(lightType));
+			entityName[0] = '\0';
+			break;
+		default:
+			SEND_MSG(ERROR, "IMGUI", "COMBO_BOX_OUT_RANGE");
+			break;
+		}
+
 	}
 
 	ImGui::Separator();
@@ -90,12 +108,6 @@ void VEngine::showEntityList() {
 	for (auto& [entity, name] : entityManager.entities) {
 		if (ImGui::TreeNode(name.c_str())) {
 			entityManager.showEntityInImGui(entity);
-			ImGui::TreePop();
-		}
-	}
-	for (auto& light : lightManager.lights) {
-		if (ImGui::TreeNode("Light ")) {
-			lightManager.renderLightImGui(light);
 			ImGui::TreePop();
 		}
 	}

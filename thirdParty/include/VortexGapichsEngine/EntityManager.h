@@ -14,6 +14,7 @@ public:
 	ComponentManager<StaticMeshComponent> staticMeshComponents;
 	ComponentManager<TransformComponent> transformComponents;
 	ComponentManager<RigidBodyComponent> rigidBodyComponents;
+    ComponentManager<LightComponent> lightComponents;
 
 	Entity createEntity(const std::string& name) {
 		Entity entity = nextEntity++;
@@ -23,11 +24,7 @@ public:
 	}
 
 	void destroyEntity(Entity entity) {
-        entities.erase(entity); // Remove entity name
-        
-        //if (transformComponents.hasComponent(entity)) {
-        //    transformComponents.
-        //}
+        entities.erase(entity);
 	}
 
     template<typename T>
@@ -40,6 +37,9 @@ public:
         }
         else if constexpr (std::is_same<T, RigidBodyComponent>::value) {
             rigidBodyComponents.addComponent(entity, std::move(component));
+        }
+        else if constexpr (std::is_same<T, LightComponent>::value) {
+            lightComponents.addComponent(entity, std::move(component));
         }
     }
 
@@ -54,22 +54,41 @@ public:
         else if constexpr (std::is_same<T, RigidBodyComponent>::value) {
             return rigidBodyComponents.hasComponent(entity);
         }
+        else if constexpr (std::is_same<T, LightComponent>::value) {
+            return lightComponents.hasComponent(entity);
+        }
         return false;
     }
 
     template<typename T>
     T* getComponent(Entity entity) {
         if constexpr (std::is_same<T, StaticMeshComponent>::value) {
-            return staticMeshComponents.hasComponent(entity) ? staticMeshComponents.getComponent(entity) : nullptr;
+            auto component = staticMeshComponents.hasComponent(entity)
+                ? staticMeshComponents.getComponent(entity)
+                : nullptr;
+            return dynamic_cast<T*>(component);
         }
         else if constexpr (std::is_same<T, TransformComponent>::value) {
-            return transformComponents.hasComponent(entity) ? transformComponents.getComponent(entity) : nullptr;
+            auto component = transformComponents.hasComponent(entity)
+                ? transformComponents.getComponent(entity)
+                : nullptr;
+            return dynamic_cast<T*>(component);
         }
         else if constexpr (std::is_same<T, RigidBodyComponent>::value) {
-            return rigidBodyComponents.hasComponent(entity) ? rigidBodyComponents.getComponent(entity) : nullptr;
+            auto component = rigidBodyComponents.hasComponent(entity)
+                ? rigidBodyComponents.getComponent(entity)
+                : nullptr;
+            return dynamic_cast<T*>(component);
+        }
+        else if constexpr (std::is_same<T, LightComponent>::value) {
+            auto component = lightComponents.hasComponent(entity)
+                ? lightComponents.getComponent(entity)
+                : nullptr;
+            return dynamic_cast<T*>(component);
         }
         return nullptr;
     }
+
 
     int selectedComp;
     void showEntityInImGui(Entity entity) {
@@ -93,10 +112,17 @@ public:
                 rigidBody->renderImGui();
             }
         }
+
+        if (lightComponents.hasComponent(entity)) { 
+            auto* light = lightComponents.getComponent(entity);
+            if (light) {
+                light->renderImGui();
+            }
+        }
         
         if (!hasComponent<StaticMeshComponent>(entity)) {
             if (ImGui::Button("Mesh")) {
-                addComponent<StaticMeshComponent>(entity, std::make_unique<StaticMeshComponent>("resources/Models/Cube/cube.obj", ""));
+                addComponent<StaticMeshComponent>(entity, std::make_unique<StaticMeshComponent>("resources/Models/Cube/cube.obj"));
             }
         }
         if (!hasComponent<RigidBodyComponent>(entity)) {
